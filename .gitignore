@@ -1,0 +1,10 @@
+# Don't store compiled versions of python scripts
+**/__pycache__/
+# ignore all csv files
+*.csv
+# ignore my total python file
+qrt.py
+# ignore the data
+data
+# ignore catboost
+catboost_info
