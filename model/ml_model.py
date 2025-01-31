@@ -64,32 +64,56 @@ class ModelTrainer:
         """For some NN models or something like AutoGluon Cross Validation can't be used
         thus the model's performance can be evaluated by a simple train /test split."""
 
-        assert self.use_model == 'AutoGluon', (
-            "This validation is only valid for AutoGluon; else use Cross Validation"
+        assert self.use_model in ['AutoGluon', 'TabNet'], (
+            "This validation is only valid for AutoGluon and TabNet; else use Cross Validation"
         )
 
-        X = pd.concat((X, Y), axis=1)
+        if self.use_model == 'AutoGluon':
+            X = pd.concat((X, Y), axis=1)
 
-        X_train, X_eval = train_test_split(
-            X,  
-            test_size=0.2,  
-            random_state=42, 
-            stratify=X["RET"]
-        )
+            X_train, X_eval = train_test_split(
+                X,  
+                test_size=0.2,  
+                random_state=42, 
+                stratify=X["RET"]
+            )
 
-        self.model.fit(
-            train_data=X_train,
-            time_limit=time_limit, 
-            verbosity=3,
-            num_gpus=num_gpus,
-            num_cpus=num_cpus
-        )
+            self.model.fit(
+                train_data=X_train,
+                time_limit=time_limit, 
+                verbosity=3,
+                num_gpus=num_gpus,
+                num_cpus=num_cpus
+            )
 
-        prediction = self.model.predict_proba(X_eval)[True]
-        Y_pred = prediction.transform(
-            lambda x: x > x.median()).values
-        
-        print('MEDIAN', accuracy_score(Y_pred, X_eval['RET']))
+            prediction = self.model.predict_proba(X_eval)[True]
+            Y_pred = prediction.transform(
+                lambda x: x > x.median()).values
+            
+            Y_eval = X_eval['RET']
+            
+        else:
+            X_train, X_eval, Y_train, Y_eval = train_test_split(
+                X, Y,
+                test_size=0.2,
+                random_state=42,
+                stratify=Y
+            )
+
+            self.model.fit(
+                X_train.values.astype(np.float32), 
+                Y_train.values.astype(np.int32), 
+                eval_set=[
+                    (X_eval.values.astype(np.float32), 
+                     Y_eval.values.astype(np.int32))
+                ], 
+                max_epochs=100
+            )
+
+            Y_proba = self.model.predict_proba(X_eval.values.astype(np.float32))[:, 1]
+            Y_pred = (Y_proba > np.median(Y_proba)).astype(int)
+       
+        print('MEDIAN', accuracy_score(Y_pred, Y_eval))
 
 
     def predict(self, X, group_col=None):
