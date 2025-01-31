@@ -8,3 +8,4 @@ qrt.py
 data
 # ignore catboost
 catboost_info
+AutogluonModels
