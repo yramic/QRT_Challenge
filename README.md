@@ -6,7 +6,7 @@ This repository presents a possible solution to the [Stock Prediction Challenge]
 
 ### Feature Engineering
 
-Feature engineering is the most critical aspect of this challenge. By leveraging domain expertise, we generate meaningful features that enhance model performance. The dataset provides return streams and trading volume rates, which can be transformed into predictive signals through various statistical and time-series techniques.
+Feature engineering is the most critical aspect of this challenge. It became evident during this project that data is key and not so much the model and approach for the model chosen. By leveraging domain expertise, we can generate meaningful features that enhance model performance. The dataset provides return streams and trading volume rates, which can be transformed into predictive signals through various statistical and time-series techniques.
 
 ### Model Selection
 
